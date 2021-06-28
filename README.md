@@ -6,3 +6,5 @@ If listed the player keeps getting kicked.
 GMs Level 1 or higher are excluded by default.
 
 Credits to @r-o-b-o-t-o for re-writing most of this.
+
+#### Find me on patreon: https://www.patreon.com/Honeys
