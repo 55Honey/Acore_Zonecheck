@@ -1,4 +1,4 @@
-## Acore_Zonecheck
+## lua-zonecheck
 
 Lua script for Azerothcore with ElunaLUA to check for a players zone and kick the player if it is listed in the config flags.
 
