@@ -17,7 +17,11 @@
 ------------------------------------------------------------------------------------------------
 -- GM GUIDE:     -  summon the pitiful cheaters back to a legal map when they complain about kicks. Or don't
 ------------------------------------------------------------------------------------------------
-local Config_Zones = {}                 --forbidden zones
+
+local Config_Teleport = true            -- Teleports players to home when entering forbidden zone
+local Config_Kick     = true            -- Kicks players when entering forbidden zone
+
+local Config_Zones = {}                 -- forbidden zones
 
 table.insert(Config_Zones, 4080) -- Quel'Danas
 table.insert(Config_Zones, 3483) -- Hellfire Peninsula
@@ -42,6 +46,12 @@ table.insert(Config_Zones, 495) -- Howling Fjord
 table.insert(Config_Zones, 4742) -- Hrothgar's Landing
 table.insert(Config_Zones, 876) -- GM Island
 
+------------------------------------------------------------------------------------------------
+-- CONFIG END
+------------------------------------------------------------------------------------------------
+
+local FILE_NAME = string.match(debug.getinfo(1,'S').source, "[^/\\]*.lua$")
+
 local function has_value(tab, val)
     for index, value in ipairs(tab) do
         if value == val then
@@ -55,7 +65,9 @@ local function shouldKick(player)
     if player:GetGMRank() >= 1 then
         return false
     end
-
+    if player:GetData("_kicked") then -- do not fire multiple times
+        return false
+    end
     local zone = player:GetZoneId()
     if has_value(Config_Zones, zone) then
         return true
@@ -65,14 +77,52 @@ local function shouldKick(player)
 end
 
 local function performKick(player)
-    local zone = player:GetZoneId()
-    PrintError("Kicking player " .. player:GetName() .. " (account " .. player:GetAccountName() .. ") for entering restricted zone " .. zone)
+    PrintError("["..FILE_NAME.."] Kicking player " .. player:GetName())
+    player:SetData("_kicked", true)
     player:KickPlayer()
 end
 
+-- SQL: azerothcore-wotlk/src/server/database/Database/Implementation/CharacterDatabase.cpp - CHAR_SEL_CHARACTER_HOMEBIND
+local function getPlayerHomeLocationDB(pGUID)
+    local mapId, zoneId, posX, posY, posZ
+    local Q = CharDBQuery(string.format("SELECT mapId, zoneId, posX, posY, posZ FROM character_homebind WHERE guid=%u", pGUID))
+    if Q then
+        mapId, zoneId, posX, posY, posZ = Q:GetUInt16(0), Q:GetUInt16(1), Q:GetFloat(2), Q:GetFloat(3), Q:GetFloat(4) 
+    end
+    if mapId and zoneId and posX and posY and posZ then
+        return mapId, zoneId, posX, posY, posZ
+    else
+        PrintError("["..FILE_NAME.."] ERROR! Could not get home location in database for character id: " .. pGUID)
+        return nil
+    end
+end
+
+local function performTeleport(player)
+    local mapId, zoneId, posX, posY, posZ = getPlayerHomeLocationDB(player:GetGUIDLow())
+    if mapId and zoneId and posX and posY and posZ then
+        PrintError(string.format("[%s] Teleporting player %s to home (%u, %f, %f, %f)", FILE_NAME, player:GetName(), mapId, posX, posY, posZ))
+        player:Teleport(mapId, posX, posY, posZ, player:GetO())
+    end
+end
+
+-- This function is another option instead of teleporting 
+--
+--local function setPlayerLocationDB(pGUID, mapId, zoneId, posX, posY, posZ)
+--    -- SQL: azerothcore-wotlk/src/server/database/Database/Implementation/CharacterDatabase.cpp - CHAR_UPD_CHARACTER_POSITION
+--    local Q = CharDBQuery(string.format("UPDATE characters SET position_x=%f, position_y=%f, position_z=%f, map=%u, zone=%u, trans_x=0, trans_y=0, trans_z=0, transguid=0, taxi_path='', cinematic=1 WHERE guid=%u", posX, posY, posZ, mapId, zoneId, pGUID))
+--    PrintError(string.format("[%s] Set character id: %u location in database to (%u, %u, %f, %f, %f)", FILE_NAME, pGUID, mapId, zoneId, posX, posY, posZ))
+--end
+
 local function checkPlayerZone(player)
     if shouldKick(player) then
-        performKick(player)
+        local zone = player:GetZoneId()
+        PrintError("["..FILE_NAME.."] Player " .. player:GetName() .. " entered restricted zone " .. zone .. " (characterId: " .. player:GetGUIDLow() .. ", accountName: " .. player:GetAccountName() .. ", accountId: " .. player:GetAccountId() .. ")")
+        if Config_Teleport then
+            performTeleport(player)
+        end
+        if Config_Kick then
+            performKick(player)
+        end
     end
 end
 
