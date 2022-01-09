@@ -17,7 +17,14 @@
 ------------------------------------------------------------------------------------------------
 -- GM GUIDE:     -  summon the pitiful cheaters back to a legal map when they complain about kicks. Or don't
 ------------------------------------------------------------------------------------------------
-local Config_Zones = {}                 --forbidden zones
+
+local Config = {}
+
+-- on/off switch (0/1)
+Config.Teleport = 0                     -- Teleports players to home when entering forbidden zone
+Config.Kick     = 1                     -- Kicks players when entering forbidden zone
+
+local Config_Zones = {}                 -- forbidden zones
 
 table.insert(Config_Zones, 4080) -- Quel'Danas
 table.insert(Config_Zones, 3483) -- Hellfire Peninsula
@@ -42,6 +49,12 @@ table.insert(Config_Zones, 495) -- Howling Fjord
 table.insert(Config_Zones, 4742) -- Hrothgar's Landing
 table.insert(Config_Zones, 876) -- GM Island
 
+------------------------------------------------------------------------------------------------
+-- CONFIG END
+------------------------------------------------------------------------------------------------
+
+local FILE_NAME = string.match(debug.getinfo(1,'S').source, "[^/\\]*.lua$")
+
 local function has_value(tab, val)
     for index, value in ipairs(tab) do
         if value == val then
@@ -55,7 +68,6 @@ local function shouldKick(player)
     if player:GetGMRank() >= 1 then
         return false
     end
-
     local zone = player:GetZoneId()
     if has_value(Config_Zones, zone) then
         return true
@@ -65,14 +77,25 @@ local function shouldKick(player)
 end
 
 local function performKick(player)
-    local zone = player:GetZoneId()
-    PrintError("Kicking player " .. player:GetName() .. " (account " .. player:GetAccountName() .. ") for entering restricted zone " .. zone)
+    PrintError("["..FILE_NAME.."] Kicking player " .. player:GetName())
     player:KickPlayer()
+end
+
+local function performTeleport(player)
+    PrintError(string.format("[%s] Teleporting player %s to home", FILE_NAME, player:GetName()))
+    player:CastSpell(player, 8690, true) -- 8690 = Hearthstone spell
 end
 
 local function checkPlayerZone(player)
     if shouldKick(player) then
-        performKick(player)
+        local zone = player:GetZoneId()
+        PrintError("["..FILE_NAME.."] Player " .. player:GetName() .. " entered restricted zone " .. zone .. " (characterId: " .. player:GetGUIDLow() .. ", accountName: " .. player:GetAccountName() .. ", accountId: " .. player:GetAccountId() .. ")")
+        if Config.Teleport == 1 then
+            performTeleport(player)
+        end
+        if Config.Kick == 1 then
+            performKick(player)
+        end
     end
 end
 
@@ -89,3 +112,11 @@ local PLAYER_EVENT_ON_UPDATE_ZONE = 27        -- (event, player, newZone, newAre
 
 RegisterPlayerEvent(PLAYER_EVENT_ON_LOGIN, checkZoneLogin)
 RegisterPlayerEvent(PLAYER_EVENT_ON_UPDATE_ZONE, checkZoneUpdate)
+
+do
+    local zones = ""
+    for _, val in ipairs(Config_Zones) do 
+        zones = zones .. val .. ", "
+    end
+    PrintInfo("["..FILE_NAME.."] ZoneCheck loaded. Settings: Kick=" .. (Config.Kick==1 and "yes" or "no") .. " Teleport=" .. (Config.Teleport==1 and "yes" or "no") .. " Zones={ " .. zones .. "}")
+end
