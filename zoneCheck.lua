@@ -27,14 +27,6 @@ Config.Kick     = 1                     -- Kicks players when entering forbidden
 local Config_Zones = {}                 -- forbidden zones
 
 table.insert(Config_Zones, 4080) -- Quel'Danas
-table.insert(Config_Zones, 3483) -- Hellfire Peninsula
-table.insert(Config_Zones, 3518) -- Nagrand
-table.insert(Config_Zones, 3519) -- Terokkar Forest
-table.insert(Config_Zones, 3520) -- Shadowmoon Valley
-table.insert(Config_Zones, 3521) -- Zangarmarsh
-table.insert(Config_Zones, 3522) -- Blade's Edge Mountain
-table.insert(Config_Zones, 3523) -- Netherstorm
-table.insert(Config_Zones, 3703) -- Shattrath
 table.insert(Config_Zones, 3537) -- Borean Tundra
 table.insert(Config_Zones, 3711) -- Sholazar Basin
 table.insert(Config_Zones, 4197) -- Wintergrasp
