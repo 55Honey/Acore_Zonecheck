@@ -109,6 +109,9 @@ local function checkPlayerZone(player,newZone)
 end
 
 local function checkPlayerArea(player,newArea)
+    if player:IsFlying() then
+        return
+    end
     if shouldKickArea(player,newArea) then
         PrintInfo("["..FILE_NAME.."] Player " .. player:GetName() .. " entered restricted zone " .. newArea .. " (characterId: " .. player:GetGUIDLow() .. ", accountName: " .. player:GetAccountName() .. ", accountId: " .. player:GetAccountId() .. ")")
         if Config.TeleportArea == 1 then
