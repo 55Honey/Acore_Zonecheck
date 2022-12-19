@@ -46,7 +46,7 @@ Config.KickArea     = 0                -- Kicks players when entering forbidden 
 
 local Config_Areas = {}                -- forbidden areas
 
-table.insert(Config_Areas, 3547) -- Throne of Kil'jaeden
+table.insert(Config_Areas, 3759) -- Netherwing Ledge
 ------------------------------------------------------------------------------------------------
 -- CONFIG END
 ------------------------------------------------------------------------------------------------
