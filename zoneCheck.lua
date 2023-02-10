@@ -26,7 +26,6 @@ Config.KickZone     = 1                 -- Kicks players when entering forbidden
 
 local Config_Zones = {}                 -- forbidden zones
 
-table.insert(Config_Zones, 4080) -- Quel'Danas
 table.insert(Config_Zones, 3537) -- Borean Tundra
 table.insert(Config_Zones, 3711) -- Sholazar Basin
 table.insert(Config_Zones, 4197) -- Wintergrasp
@@ -41,12 +40,22 @@ table.insert(Config_Zones, 495)  -- Howling Fjord
 table.insert(Config_Zones, 4742) -- Hrothgar's Landing
 table.insert(Config_Zones, 876)  -- GM Island
 
-Config.TeleportArea = 1                -- Teleports players to home when entering forbidden zone
-Config.KickArea     = 0                -- Kicks players when entering forbidden zone
+Config.TeleportArea = 1                -- Teleports players to home when entering forbidden area
+Config.KickArea     = 0                -- Kicks players when entering forbidden area
 
 local Config_Areas = {}                -- forbidden areas
 
-table.insert(Config_Areas, 3759) -- Netherwing Ledge
+table.insert(Config_Areas, 4080) -- Quel'Danas
+table.insert(Config_Areas, 4085) -- Shattered Sun Staging Area
+table.insert(Config_Areas, 4086) -- Sun's Reach Sanctum
+table.insert(Config_Areas, 4087) -- Sun's Reach Harbor
+table.insert(Config_Areas, 4088) -- Sun's Reach Armory
+table.insert(Config_Areas, 4089) -- Dawnstar Village
+table.insert(Config_Areas, 4090) -- Dawning Square
+table.insert(Config_Areas, 4091) -- Greengill Coast
+table.insert(Config_Areas, 4092) -- The Dead Scar
+table.insert(Config_Areas, 4094) -- Sunwell Plateau
+table.insert(Config_Areas, 4095) -- Magisters' Terrace
 ------------------------------------------------------------------------------------------------
 -- CONFIG END
 ------------------------------------------------------------------------------------------------
